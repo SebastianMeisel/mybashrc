@@ -6,7 +6,7 @@ BLUE="\033[1;34m"
 RESET="\033[0m"
 
 # Function to get Git branch and status
-parse_git_branch_and_status() {
+function parse_git_branch_and_status() {
   if git rev-parse --is-inside-work-tree &>/dev/null; then
     branch=$(git symbolic-ref --short HEAD 2>/dev/null || git describe --tags --exact-match 2>/dev/null)
     status=$(git status --porcelain 2>/dev/null)
@@ -19,7 +19,7 @@ parse_git_branch_and_status() {
 }
 
 # Function to determine the prompt color based on the exit status
-get_exit_status_color() {
+function get_exit_status_color() {
   if [[ $? -eq 0 ]]; then
     printf "${GREEN}✔${RESET}"
   else
@@ -28,6 +28,6 @@ get_exit_status_color() {
 }
 
 # Set the PS1 prompt
-PS1='$(get_exit_status_color) '  # Dynamically add the exit status
-export PS1="┌ [${BLUE}\u${RESET}@${BLUE}\h${RESET}:${BLUE}\l${RESET} ${YELLOW}\W${RESET}$(parse_git_branch_and_status)] ${PS1}\n└ \$ "
+export PS1='$(get_exit_status_color) '  # Dynamically add the exit status
+PS1="┌ [\[\033[1;34m\]\u\[\033[0m\]@\[\033[1;34m\]\h\[\033[0m\]:\[\033[1;34m\]\l\[\033[0m\] \[\033[1;33m\]\w\[\033[0m\]$(parse_git_branch_and_status)] ${PS1}\n└ \$ "
 
