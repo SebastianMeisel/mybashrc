@@ -1,0 +1,2 @@
+alias ip='ip -h -s --color=always'
+alias ipbrief='ip -h -s --brief --color=always'

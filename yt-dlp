@@ -1,0 +1,1 @@
+alias yt-dlp='pipenv run yt-dlp'

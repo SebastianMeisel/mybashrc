@@ -1,0 +1,4 @@
+
+set -C
+shopt -s autocd
+shopt -s cdspell

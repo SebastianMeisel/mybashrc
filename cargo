@@ -1,0 +1,1 @@
+export PATH=/home/sebastian/.cargo/bin:${PATH}

@@ -1,0 +1,3 @@
+
+function please { echo "You're welcome!"; echo; sudo $@;}
+function bitte { echo "Gerne!"; echo; sudo $@;}

@@ -1,0 +1,5 @@
+function h# () {
+    binary=$(sed 's/ //g' <<< "$@")
+    echo "ibase=2; obase=10000; $binary" | bc
+	}
+

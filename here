@@ -1,0 +1,1 @@
+alias pyhere='mv helper.py helper.py~; cat << \. > helper.py && python3 helper.py'

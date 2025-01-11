@@ -1,0 +1,1 @@
+alias arch='distrobox enter --root arch'

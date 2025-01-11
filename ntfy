@@ -1,0 +1,3 @@
+function ntfy () { 
+	curl -d "$@" ln1/tea 
+	}

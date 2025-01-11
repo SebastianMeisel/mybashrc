@@ -1,0 +1,7 @@
+alias ßh=shh
+alias ß=ss
+
+alias ßh=ssh
+alias ß=ss
+
+alias awk='awk -v OFS=" " '

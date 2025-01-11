@@ -1,0 +1,4 @@
+function =() {
+	echo "scale=${2:-2} ; ${1}" | bc
+}
+
