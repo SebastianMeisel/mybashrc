@@ -25,4 +25,4 @@ parse_git_branch_and_status() {
 
 # Set the PS1 prompt
 [[ $? ]] && export PS1="${GREEN}✔${RESET}" || export PS1="${RED}✘${RESET}" # color base on exit code
-PS1="┌ [${BLUE}\u${RESET}@${BLUE}\h${RESET}:${BLUE}\l${RESET} ${YELLOW}\W${RESET}\$(parse_git_branch_and_status) ${PS1}]\n└ \$ "
+PS1="┌ [${BLUE}\u${RESET}@${BLUE}\h${RESET}:${BLUE}\l${RESET} ${YELLOW}\w${RESET}\$(parse_git_branch_and_status) ${PS1}]\n└ \$ "
