@@ -1,0 +1,13 @@
+# get line number of first occurence of PATTERN in FILE
+function grepln () {
+	PATTERN=$1
+	FILE=$2
+	grep -n -E "$PATTERN" "$FILE"  | head -1 | awk -F: '{print $1}'
+}
+
+# open FILE in emacsclient at first line with PATTERN
+function emacsln () {
+	PATTERN=$1
+	FILE=$2
+        emacsclient -nc +$(grepln "$PATTERN" "$FILE") "$FILE"
+}

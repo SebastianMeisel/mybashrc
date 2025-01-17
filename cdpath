@@ -1,1 +1,1 @@
-export CDPATH=.:~:~/git:/etc
+export CDPATH=.:~:~/git:/etc:~/Dokumente:~/Documents

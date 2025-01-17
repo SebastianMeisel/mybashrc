@@ -1,7 +1,6 @@
 alias ßh=shh
 alias ß=ss
 
-alias ßh=ssh
-alias ß=ss
-
 alias awk='awk -v OFS=" " '
+alias pdfbook='pdfbook2 -spa4paper'
+alias vim=nvim
