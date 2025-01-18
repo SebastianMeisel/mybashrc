@@ -28,7 +28,13 @@ function get_exit_status_color() {
   fi
 }
 
+<<<<<<< HEAD
 # Set the PS1 prompto
 export PS1='$(get_exit_status_color $?) $(parse_git_branch_and_status) '  # Dynamically add the exit status
 PS1="┌ [\[\033[1;34m\]\u\[\033[0m\]@\[\033[1;34m\]\h\[\033[0m\]:\[\033[1;34m\]\l\[\033[0m\] \[\033[1;33m\]\w\[\033[0m\]] ${PS1}\n└ \$ "
+=======
+# Set the PS1 prompt
+PS1='$(get_exit_status_color) '  # Dynamically add the exit status
+export PS1="┌ [${BLUE}\u${RESET}@${BLUE}\h${RESET}:${BLUE}\l${RESET} ${YELLOW}\w${RESET}$(parse_git_branch_and_status)] ${PS1}\n└ \$ "
+>>>>>>> 6cfac81 (Full working directory)
 
