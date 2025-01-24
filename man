@@ -1,16 +1,23 @@
-# add search pattern to man
 
-manual=$(which man)
+function man() {
+    manual="/usr/bin/man"
+    local section=""
+    local search_arg=""
 
-function man () {
-    section="" # man sections 
-    pattern="" # search patterns
+    # Check if the first argument is a section (a digit from 1 to 9)
+    if [[ $1 =~ ^[1-9]$ ]]; then
+        section=$1
+        shift
+    fi
 
-    # check if section is given
-    (( $1 > 0 && $1 <=9 )) && sec=$1 && shift
+    local command=$1
+    shift
 
-    # check if search pattern is given
-    [[ -n $2 ]] && pattern="-p $2"
+    # Check if a search pattern is provided
+    if [[ $# -ge 1 ]]; then
+        search_arg="-p $(printf '%q' $@)"
+    fi
 
-    $manual $sec $1 | less $pattern
+    # Run 'man' and pipe to 'less' with the optional search
+    $manual $section "$command" | less $search_arg
 }
