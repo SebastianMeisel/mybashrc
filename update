@@ -1,0 +1,17 @@
+#!/bin/bash
+update () {
+	# first test for zypper
+	if ( sudo test -x /bin/zypper ) 
+	then
+		sudo zypper dup -y && ntfy "Update auf $HOSTNAME erfolgreich!" || "Update auf $HOSTNAME fehlgeschlagen"
+	# then for dnf
+	elif ( sudo test -x /bin/dnf )
+	then
+		sudo dnf update -y && ntfy "Update auf $HOSTNAME erfolgreich!" || "Update auf $HOSTNAME fehlgeschlagen"
+	# then for apt
+	elif ( sudo test -x /bin/apt )
+	then
+		sudo apt update && sudo apt upgrade-y && ntfy "Update auf $HOSTNAME erfolgreich!" || "Update auf $HOSTNAME fehlgeschlagen"
+
+	fi
+}

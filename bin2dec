@@ -1,5 +1,0 @@
-function bin2dec () {
-    binary=$(sed 's/ //g' <<< "$@")
-    echo "ibase=2; $binary" | bc
-	}
-
