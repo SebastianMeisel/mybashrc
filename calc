@@ -1,4 +1,5 @@
 function =() {
-	echo "scale=${2:-2} ; ${1}" | bc
+        rechnung=$(printf "%s" "$@")
+	echo "scale=${2:-2} ; ${rechnung}" | bc
 }
 

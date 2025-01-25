@@ -4,3 +4,6 @@ alias ß=ss
 alias awk='awk -v OFS=" " '
 alias pdfbook='pdfbook2 -spa4paper'
 alias vim=nvim
+alias suvi='sudo nvim'
+alias gS='git status'
+alias gC='git add -A && git commit -am'
