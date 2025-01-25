@@ -3,3 +3,32 @@ function =() {
 	echo "scale=${2:-2} ; ${rechnung}" | bc
 }
 
+# binary to hex
+function =bx () {
+    binary=$(sed 's/ //g' <<< "$@")
+    echo "ibase=2; obase=10000; $binary" | bc
+	}
+
+# decimal to hex
+function =x () {
+    decimal=$(printf "%s" $@ )
+    echo "ibase=10; obase=16; $decimal" | bc
+	}
+
+# hex to decimal
+function =xd () {
+    hex=$(sed 's/ //g' <<< "$@")
+    echo "ibase=16;  $hex" | bc
+	}
+
+# decimal to binary
+function =b () {
+    decimal=$(printf "%s" $@ )
+    echo "ibase=10; obase=2; $decimal" | bc
+	}
+	
+# binary to decimal
+function =bd () {
+    binary=$(sed 's/ //g' <<< "$@")
+    echo "ibase=2;  $binary" | bc
+	}
