@@ -1,11 +1,11 @@
 # define variables for color codes
-R="\33[31m" # Red
-G="\33[32m" # Green
-Y="\33[33m" # Yellow
-B="\33[34m" # Blue
-M="\33[35m" # Magenta
-C="\33[36m" # Cyan
-N="\33[0m" # Normal
+export R="\033[31m" # Red
+export G="\033[32m" # Green
+export Y="\033[33m" # Yellow
+export B="\033[34m" # Blue
+export M="\033[35m" # Magenta
+export C="\033[36m" # Cyan
+export N="\033[0m" # Normal
 
 # Always provide some of these codes to awk.
 # Set Output Field Separator to tabulator.
