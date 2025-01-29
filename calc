@@ -1,6 +1,7 @@
-function =() {
+#!/bin/bash
+function = () {
         rechnung=$(printf "%s" "$@")
-	echo "scale=${2:-2} ; ${rechnung}" | bc
+	echo "scale=${2:-2} ; ${rechnung}" | bc | sed -r ':loop;s|\b([0-9]+)([0-9]{3})\b|\1.\2|g;t loop'
 }
 
 # binary to hex
@@ -18,7 +19,7 @@ function =x () {
 # hex to decimal
 function =xd () {
     hex=$(sed 's/ //g' <<< "$@")
-    echo "ibase=16;  $hex" | bc
+    echo "ibase=16;  $hex" | bc | sed -r ':loop;s|\b([0-9]+)([0-9]{3})\b|\1.\2|g;t loop'
 	}
 
 # decimal to binary
@@ -30,5 +31,26 @@ function =b () {
 # binary to decimal
 function =bd () {
     binary=$(sed 's/ //g' <<< "$@")
-    echo "ibase=2;  $binary" | bc
+    echo "ibase=2;  $binary" | bc | sed -r ':loop;s|\b([0-9]+)([0-9]{3})\b|\1.\2|g;t loop'
 	}
+
+case $0 in
+   ${HOME}/.local/bin/=) echo $@
+	= "$@" 
+	;; 
+   ${HOME}/.local/bin/=bx) echo $@
+	=bx "$@" 
+	;; 
+   ${HOME}/.local/bin/=x) echo $@
+	=x "$@" 
+	;; 
+   ${HOME}/.local/bin/=xd) echo $@
+	=xd "$@" 
+	;; 
+   ${HOME}/.local/bin/=b) echo $@
+	=b "$@" 
+	;; 
+   ${HOME}/.local/bin/=bd) echo $@
+	=bd "$@" 
+	;; 
+esac
