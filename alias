@@ -8,3 +8,5 @@ alias suvi='sudo nvim'
 alias gS='git status'
 alias gC='git add -A && git commit -am'
 alias gP='git push'
+alias gF='git pull --rebase'
+
