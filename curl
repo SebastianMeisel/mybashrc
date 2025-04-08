@@ -1,0 +1,4 @@
+function wetter () {
+  local PLACE=${1:-"Mölschow"}
+  curl https:/wttr.in/${PLACE}
+}
