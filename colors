@@ -1,12 +1,18 @@
 # define variables for color codes
-export R="\033[31m" # Red
-export G="\033[32m" # Green
-export Y="\033[33m" # Yellow
-export B="\033[34m" # Blue
-export M="\033[35m" # Magenta
-export C="\033[36m" # Cyan
-export N="\033[0m" # Normal
+export RAW_R="\033[31m" # Raw Red
+export G="\[\033[32m\]" # Green
+export Y="\[\033[33m\]" # Yellow
+export B="\[\033[34m\]" # Blue
+export M="\[\033[35m\]" # Magenta
+export C="\[\033[36m\]" # Cyan
+export N="\[\033[0m\]"  # Normal
+# Raw versions for awk and other commands that don't need prompt escaping
+export RAW_G="\033[32m" # Raw Green
+export RAW_Y="\033[33m" # Raw Yellow
+export RAW_B="\033[34m" # Raw Blue
+export RAW_M="\033[35m" # Raw Magenta
+export RAW_C="\033[36m" # Raw Cyan
+export RAW_N="\033[0m"  # Raw Normal
 
-# Always provide some of these codes to awk.
 # Set Output Field Separator to tabulator.
-alias awk='awk -v r=$R -v g=$G -v y=$Y -v n=$N -v OFS="	"'
+alias awk='awk -v r=$RAW_R -v g=$RAW_G -v y=$RAW_Y -v b=$RAW_B -v m=$RAW_M -v c=$RAW_C -v n=$RAW_N -v OFS="	"'
