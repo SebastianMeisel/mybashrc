@@ -1,0 +1,9 @@
+alias obscureIPv6='sed "s/2a0d:c80/3fff:abcd/"' 
+
+function tracepath {
+/usr/sbin/tracepath $@ | obscureIPv6
+}
+
+function ip {
+/usr/sbin/ip -h -s --color=always $@ | obscureIPv6
+}
