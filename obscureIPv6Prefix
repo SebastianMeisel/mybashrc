@@ -1,4 +1,4 @@
-alias obscureIPv6='sed "s/2a0d:c80/3fff:abcd/"' 
+alias obscureIPv6='sed "s/2a0d:c80/3fff:abcd/g"' 
 
 function tracepath {
 /usr/sbin/tracepath $@ | obscureIPv6
