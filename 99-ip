@@ -10,6 +10,28 @@ function ipbrief {
     NF == 0 { next }  # Skip empty lines
 
     {
+        # Routing Table
+        if ($1 ~ /[.]/) {                # IPv4
+          printf("%s%-30s%s", g, $1, reset)
+        } else if ($1 ~ /[:]/) {         # IPv6
+          printf("%s%-30s%s", y, $1, reset)
+        } else if ($1 ~ /default/) {     # default route
+          printf("%s%-30s%s", r, $1, reset)
+        }
+        if ($2 ~ /via/) {
+          if ($3 ~ /[.]/) {                # IPv4
+            printf("→ %s%-30s%s | %-15s\n", g, $3, reset, $5)
+          } else if ($3 ~ /[:]/) {         # IPv6
+            printf("→ %s%-30s%s | %-15s\n", y, $3, reset, $5)
+          } else {
+            printf("→ %-30s | %-15s\n", $3, $5)
+          }
+          next
+        } else if ($2 ~ /dev/) {
+          printf("→ %s%-30s%s | %-15s\n", r, $3, reset, $5)
+          next
+        }
+
         # Interface name, state, first address
         if ($2 ~ "UP") {
           printf("%-20s %s%-9s%s", $1, g, $2, reset)
@@ -20,19 +42,24 @@ function ipbrief {
         }
         # addresses
         for (i = 3; i <= NF; i++) {
+          # skip metrics
           if ($i == "metric") {
-	     i++;
-	     continue
-	  }
+      	     i++;
+	           continue
+	        }
+
+          # indentation
           if (i > 3) {printf("%30s", "")}
           
-          if ($i ~ /\./) {
+          if ($i ~ /\./) {                # IPv4
               printf("%s%-20s%s\n", g, $i, reset)
-          } else if ($i ~ /:/) {
+          } else if ($i ~ /:/) {          # IPv6 | MAC
               printf("%s%-20s%s\n", y, $i, reset)
-	  } else {
+	        } else if ($i ~ /<.*?>/) {      # additional link information
+              printf("→ %-20s\n", $i)
+          } else {
               printf("\n")
-	  }
+	        }
         }
 	# if no address is configured print newline
 	if (NF < 3) {printf("\n")}
