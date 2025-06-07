@@ -31,7 +31,7 @@ function ipbrief {
           }
 
         }
-    }'
+    }' | obscureIPv6
 }
 
 alias ip='ip -h -s --color=always'
