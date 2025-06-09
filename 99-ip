@@ -11,13 +11,16 @@ function ipbrief {
 
     {
         # Routing Table
-        if ($1 ~ /[.]/) {                # IPv4
-          printf("%s%-30s%s", g, $1, reset)
-        } else if ($1 ~ /[:]/) {         # IPv6
-          printf("%s%-30s%s", y, $1, reset)
-        } else if ($1 ~ /default/) {     # default route
-          printf("%s%-30s%s", r, $1, reset)
-        }
+        if ($1 ~ /[.]/) {					# IPv4
+		printf("%s%-30s%s", g, $1, reset)
+        } else if ($1 ~ /[:]/) {				# IPv6
+          	printf("%s%-30s%s", y, $1, reset)
+        } else if ($1 ~ /default/) { 			# default route
+          	printf("%s%-30s%s", r, $1, reset)
+ 	} else if ($1 ~ /unreachable/ ) { 		# for now drop unreachable routes
+	        next
+	}
+
         if ($2 ~ /via/) {
           if ($3 ~ /[.]/) {                # IPv4
             printf("→ %s%-30s%s | %-15s\n", g, $3, reset, $5)
