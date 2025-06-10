@@ -18,7 +18,7 @@ function ipbrief {
         } else if ($1 ~ /default/) { 			# default route
           	printf("%s%-30s%s", r, $1, reset)
  	} else if ($1 ~ /unreachable/ ) { 		# unreachable routes
-	       	printf("%s%-30s%s 🚫 %s%-20s%s | %-15s", r, $2, reset, r, $4, reset )
+	       	printf("%s%-30s%s 🚫 %s%-20s%s | %-15s", r, $2, reset, r, $4, reset, $6 )
 	       next
 	}
 
