@@ -1,0 +1,15 @@
+#+TITLE: My .bashrc snippets
+#+AUTHOR: Sebastian Meisel
+
+* Usage
+
+ 1) Clone the repository to =.bashrc.d= in your Home directory.
+ 2) Add the following to your =.bashrc=:
+#+BEGIN_SRC bash
+q[[ -d ~.bashrc.d ]] && for f in ~/.bashrc.d/[^_]* ; do . ${f} ; done 
+#+END_SRC
+ 3) To exclude certain snippets add an underscore (~_~) at the beginning of the filename.
+
+# Local Variables:
+# jinx-languages: "en_US"
+# End:
