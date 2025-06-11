@@ -1,74 +1,144 @@
-function ipbrief {
-    /usr/sbin/ip --brief -h -s  "$@" | \
+#!/bin/bash
+
+# Enhanced ip command wrapper that provides colored, formatted output
+# for network interface information, routing tables, and neighbor entries
+function ipbrief() {
+    /usr/sbin/ip --brief -h -s "$@" | \
     awk '
-    BEGIN {# Farbcodes
-          r = "\033[31m"  # rot
-          g = "\033[32m"  # grün
-          y = "\033[33m"  # gelb
-          reset = "\033[0m"}
-
-    NF == 0 { next }  # Skip empty lines
-
+    BEGIN {
+        # Color codes for output formatting
+        red = "\033[31m"      # Red for errors, default routes, DOWN interfaces
+        green = "\033[32m"    # Green for IPv4 addresses, UP interfaces
+        yellow = "\033[33m"   # Yellow for IPv6 addresses
+        blue = "\033[34m"   # Bkue for MAC addresses
+        reset = "\033[0m"     # Reset color
+        
+        # Variables to track device names for neighbor entries
+        current_device = ""
+        color = ""
+    }
+    
+    # Skip empty lines
+    NF == 0 { next }
+    
     {
-        # Routing Table
-        if ($1 ~ /[.]/) {					# IPv4
-		printf("%s%-30s%s", g, $1, reset)
-        } else if ($1 ~ /[:]/) {				# IPv6
-          	printf("%s%-30s%s", y, $1, reset)
-        } else if ($1 ~ /default/) { 			# default route
-          	printf("%s%-30s%s", r, $1, reset)
- 	} else if ($1 ~ /unreachable/ ) { 		# unreachable routes
-	       	printf("%s%-29s%s 🚫 %s%-30s%s | %-15s\n", r, $2, reset, r, $4, reset, $6 )
-	       next
-	}
-
+        #######################################
+        # Handle neighbor table entries
+        # Format: IP_ADDRESS DEVICE MAC_ADDRESS [additional_info]
+        if ($1 ~ /[.:]/ && $3 ~ /([0-9a-f]{2}:){5}[0-9a-f]{2}/) {
+            # Set color based on IP version
+            if ($1 ~ /\./) {
+                color = green    # IPv4
+            } else if ($1 ~ /:/) {
+                color = yellow   # IPv6
+            }
+            
+            # Only print device name if it differs from previous entry
+            if ($2 == current_device) {
+                device_display = " "
+            } else {
+                device_display = $2
+            }
+            
+            printf("%-10s %s%-15s : %s%-30s%s\n", 
+                   device_display, blue, $3, color, $1, reset)
+            
+            current_device = $2
+            next
+        }
+        
+        #######################################
+        # Handle routing table and interface entries
+        
+        # Determine color for first column based on content type
+        if ($1 ~ /\./) {                    # IPv4 address/route
+            color = green
+        } else if ($1 ~ /:/) {              # IPv6 address/route
+            color = yellow
+        } else if ($1 ~ /default/) {        # Default route
+            color = red
+        } else if ($1 ~ /unreachable/) {    # Unreachable routes
+            printf("%s%-29s%s 🚫 %s%-30s%s | %-15s\n", 
+                   red, $2, reset, red, $4, reset, $6)
+            next
+        } else {
+            color = reset    # Other routes/unknown
+        }
+        
+        # Print first column with appropriate color
+        printf("%s%-30s%s", color, $1, reset)
+        
+        #######################################
+        # Handle routing table entries with "via" (gateway)
         if ($2 ~ /via/) {
-          if ($3 ~ /[.]/) {                # IPv4
-            printf("→ %s%-30s%s | %-15s\n", g, $3, reset, $5)
-          } else if ($3 ~ /[:]/) {         # IPv6
-            printf("→ %s%-30s%s | %-15s\n", y, $3, reset, $5)
-          } else {
-            printf("→ %-30s | %-15s\n", $3, $5)
-          }
-          next
-        } else if ($2 ~ /dev/) {
-          printf("→ %s%-30s%s | %-15s\n", r, $3, reset, $5)
-          next
+            if ($3 ~ /\./) {                # IPv4 gateway
+                printf("→ %s%-30s%s | %-15s\n", green, $3, reset, $5)
+            } else if ($3 ~ /:/) {          # IPv6 gateway
+                printf("→ %s%-30s%s | %-15s\n", yellow, $3, reset, $5)
+            } else {
+                printf("→ %-30s | %-15s\n", $3, $5)
+            }
+            next
         }
-
-        # Interface name, state, first address
-        if ($2 ~ "UP") {
-          printf("%-20s %s%-9s%s", $1, g, $2, reset)
-        } else if ($2 ~ "DOWN") {
-          printf("%-20s %s%-9s%s", $1, r, $2, reset)
-        } else { 
-          printf("%-20s %-9s", $1, $2, $3)
+        
+        #######################################
+        # Handle direct routes with "dev" (interface)
+        if ($2 ~ /dev/) {
+            printf("→ %s%-30s%s | %-15s\n", red, $3, reset, $5)
+            next
         }
-        # addresses
+        
+        #######################################
+        # Handle interface status and addresses
+        
+        # Set color based on interface status
+        if ($2 ~ /UP/) {
+            color = green
+        } else if ($2 ~ /DOWN/) {
+            color = red
+        } else {
+            color = reset
+        }
+        
+        # Print interface status
+        printf("%s%-20s%s", color, $2, reset)
+        
+        # Process addresses and additional information
         for (i = 3; i <= NF; i++) {
-          # skip metrics
-          if ($i == "metric") {
-      	     i++;
-	           continue
-	        }
-
-          # indentation
-          if (i > 3) {printf("%30s", "")}
-          
-          if ($i ~ /\./) {                # IPv4
-              printf("%s%-20s%s\n", g, $i, reset)
-          } else if ($i ~ /:/) {          # IPv6 | MAC
-              printf("%s%-20s%s\n", y, $i, reset)
-	        } else if ($i ~ /<.*?>/) {      # additional link information
-              printf("→ %-20s\n", $i)
-          } else {
-              printf("\n")
-	        }
+            # Skip metric values and their labels
+            if ($i == "metric") {
+                i++  # Skip the next field (metric value)
+                continue
+            }
+            
+            # Add indentation for additional addresses
+            if (i > 3) {
+                printf("%50s", "")
+            }
+            
+            # Format addresses based on type
+            if ($i ~ /\./) {                # IPv4 address
+                color = green
+            } else if ($i ~ /([0-9a-f]{2}:){5}[0-9a-f]{2}/) {   #  MAC address
+                color = blue
+            } else if ($i ~ /:/) {   #  MAC address
+                color = yellow
+            } else if ($i ~ /<.*>/) {       # Link information (e.g., <BROADCAST,MULTICAST>)
+                printf("→ %-20s\n", $i)
+                next
+            } else {
+                printf("\n")
+                next
+            }
+            printf("%s%-20s%s\n", color, $i, reset)
         }
-	# if no address is configured print newline
-	if (NF < 3) {printf("\n")}
+        
+        # Print newline if no addresses are configured
+        if (NF < 3) {
+            printf("\n")
+        }
     }' | obscureIPv6
 }
 
+# Alias for enhanced ip command with human-readable and colored output
 alias ip='ip -h -s --color=always'
-
