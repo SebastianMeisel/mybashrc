@@ -3,7 +3,7 @@
 # Enhanced ip command wrapper that provides colored, formatted output
 # for network interface information, routing tables, and neighbor entries
 function ipbrief() {
-    /usr/sbin/ip --brief -h -s "$@" | \
+    /usr/sbin/ip --brief -h -s "$@" | sort | \
     awk '
     BEGIN {
         # Color codes for output formatting
