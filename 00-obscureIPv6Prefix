@@ -1,4 +1,4 @@
-alias obscureIPv6='sed -E "s|m[23][0-9a-f]{3}:[0-9a-f]{1,4}:|m3fff:abc:/|g"' 
+alias obscureIPv6='sed -E "s|m[23][0-9a-f]{3}:[0-9a-f]{1,4}:|m3fff:abc:|g"' 
 
 
 function tracepath {
