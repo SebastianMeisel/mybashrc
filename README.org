@@ -10,6 +10,8 @@
 q[[ -d ~.bashrc.d ]] && for f in ~/.bashrc.d/[0-9][0-9]-* ; do . ${f} ; done 
 #+END_SRC
 
+I use 00-obscureIPv6Prefix to hide my IPv6 prefix for online sharing. If you don't want this feature, remove all
+occurences of =| opbscureIPv6= in 99-ip.
 
 # Local Variables:
 # jinx-languages: "en_US"
