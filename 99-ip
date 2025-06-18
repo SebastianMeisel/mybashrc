@@ -3,8 +3,8 @@
 # Enhanced ip command wrapper that provides colored, formatted output
 # for network interface information, routing tables, and neighbor entries
 function ipbrief() {
-    /usr/sbin/ip --brief -h -s "$@" | sed -E 's/[[:space:]]+/ /g' | sort -k2 | \
-    awk '
+	/usr/sbin/ip --brief -h -s "$@" | sed -E 's/[[:space:]]+/ /g' | sort -k2 |
+		awk '
     BEGIN {
         # Color codes for output formatting
         red = "\033[31m"      # Red for errors, default routes, DOWN interfaces
@@ -138,6 +138,12 @@ function ipbrief() {
             printf("\n")
         }
     }' | obscureIPv6
+}
+
+function ping() {
+	IPv6Prefix="$(/usr/sbin/ip a | sed '/lo:/,+5d' | grep -m1 inet6 | grep -Eo '2[[:xdigit:]]{3}:[[:xdigit:]]{1,4}:')"
+	pingARG=$(echo -n "$@" | sed "s/3fff:abc:/${IPv6Prefix}/g")
+	/usr/bin/ping ${pingARG} | obscureIPv6
 }
 
 # Alias for enhanced ip command with human-readable and colored output
