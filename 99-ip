@@ -141,7 +141,7 @@ function ipbrief() {
 }
 
 function ping() {
-	IPv6Prefix="$(/usr/sbin/ip a | sed '/lo:/,+5d' | grep -Ev ' (fd[[:xdigit:]]{2}:|fe80:)' | grep -m1 inet6 | grep -Eo '2[[:xdigit:]]{3}:[[:xdigit:]]{1,4}:')"
+	IPv6Prefix="$(/usr/sbin/ip a | sed '/lo:/,+5d' | grep -Ev ' (fd[[:xdigit:]]{2}:|fe80:)' | grep -m1 inet6 | grep --color=never -Eo '[^:]2[[:xdigit:]]{3}')"
 	pingARG=$(echo -n "$@" | sed "s/3fff:abc:/${IPv6Prefix}/g")
 	/usr/bin/ping ${pingARG} | obscureIPv6
 }
