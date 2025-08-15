@@ -1,0 +1,32 @@
+# This pair of functions is a simple "output bookmarking" tool:
+#
+# Use-case:
+#   Sometimes a command outputs a lot of lines, and you want to refer back
+#   to a specific one later without running the command again.
+#
+# Workflow example:
+#   $ ls -l /usr/bin | lout
+#     1  -rwxr-xr-x  1 root root   10432 Feb  1  /usr/bin/[
+#     2  -rwxr-xr-x  1 root root   88664 Feb  1  /usr/bin/awk
+#     3  -rwxr-xr-x  1 root root   30888 Feb  1  /usr/bin/base32
+#     ...
+#   Now you’ve stored that entire output in ~/.lastout, with line numbers.
+#
+#   Later, if you want to re-display just line 2:
+#   $ ? 2
+#   -rwxr-xr-x  1 root root   88664 Feb  1  /usr/bin/awk
+#
+# This avoids rerunning the original command, which might be slow,
+# or have non-repeatable output (e.g., network queries).
+
+# Save piped output to ~/.lastout while numbering the lines for easy reference.
+function lout () { 
+    tee ~/.lastout | nl
+}
+
+# Print a specific line from the last saved output.
+# Usage: ? <line_number>
+function ? () { 
+    awk -v LINE=$1 'NR==LINE {print $0}' ~/.lastout
+}
+
