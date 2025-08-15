@@ -340,10 +340,10 @@ complete -F _tmux tmux
 
 ---
 
-**Notes**
+* Notes
 
-* Some helpers rely on others (e.g., =ipbrief= → =obscureIPv6=, prompt colors → =08-colors=). Source order matters.
-* Aliases/functions with Unicode names (e.g., =ß=) require UTF-8 locale in your shell.
+ - Some helpers rely on others (e.g., =ipbrief= → =obscureIPv6=, prompt colors → =08-colors=). Source order matters.
+ - Aliases/functions with Unicode names (e.g., =ß=) require UTF-8 locale in your shell.
 ------
 
 
