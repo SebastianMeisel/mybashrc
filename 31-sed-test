@@ -1,0 +1,11 @@
+function tesed () {
+	local CODE=$1
+	local FILE=$2
+	diff -y $FILE <(sed $CODE $FILE)
+	local answer=$(read -p '[y/N]' a ; echo $a) 
+	[[ "y" =~ $answer && ! -z $answer ]] \
+	&& sed -i"~$(date +%x)" $CODE $FILE
+	}
+
+
+

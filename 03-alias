@@ -9,7 +9,9 @@ alias gS='git status'
 alias gC='git add -A && git commit -am'
 alias gP='git push'
 alias gF='git pull --rebase'
+alias gc='git clone'
 
 alias lsda='find . -maxdepth 1 -type d'
 alias lsd="lsda -not -regex '^\./\..*'"
 
+alias open='xdg-open'
