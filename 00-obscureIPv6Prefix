@@ -1,5 +1,5 @@
 #: OBSCUREIPv6
-
+#:    Adds alias ```obscureIPv6``` that overwrite part of the IPv6-prefix in output.
 alias obscureIPv6='sed -E "s%(m|[[:space:]]|[(])[23][0-9a-f]{3}:[0-9a-f]{1,4}:%\13fff:abc:%g"' 
 export myIPv6Prefix=$(/usr/sbin/ip -6 --brief a show enp0s16f0u1 | sed -E 's/^.* 2([[:xdigit:]]{3})((:[[:xdigit:]]{1,4}){3}).*$/2\1\2/')
 
