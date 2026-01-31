@@ -1,1 +1,13 @@
-alias pyhere='mv helper.py helper.py~; cat << \. > helper.py && python3 helper.py'
+# Inline Python scratchpad - write and execute Python code from a here-document
+# Usage: pyhere
+#        <python code>
+#        _
+# This replaces helper.py with new code and executes it immediately
+# The old helper.py is backed up as helper.py~
+alias pyhere='mv helper.py helper.py~; cat << \_ > helper.py && python3 helper.py'
+
+# Write to a file with sudo using a here-document
+# Usage: suhere /path/to/file
+#        <content>
+#        _
+alias suhere='cat << \_ | sudo tee'

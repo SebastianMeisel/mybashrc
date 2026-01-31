@@ -1,8 +1,20 @@
+# Interactive sed tester - preview sed changes before applying them
+# Usage: tesed 's/old/new/g' filename
+#
+# This function:
+# 1. Shows a side-by-side diff of original vs. sed-transformed content
+# 2. Prompts for confirmation [y/N]
+# 3. If confirmed, applies the change and creates a timestamped backup
+#
+# Example: tesed 's/foo/bar/g' myfile.txt
 function tesed () {
 	local CODE=$1
 	local FILE=$2
+	# Show side-by-side diff of original and transformed file
 	diff -y $FILE <(sed $CODE $FILE)
+	# Prompt for confirmation
 	local answer=$(read -p '[y/N]' a ; echo $a) 
+	# Apply changes if user confirms with 'y', creating a dated backup
 	[[ "y" =~ $answer && ! -z $answer ]] \
 	&& sed -i"~$(date +%x)" $CODE $FILE
 	}

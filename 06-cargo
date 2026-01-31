@@ -1,1 +1,3 @@
+# Add Rust cargo bin directory to PATH
+# This makes Rust toolchain commands (cargo, rustc, etc.) available
 export PATH=/home/sebastian/.cargo/bin:${PATH}

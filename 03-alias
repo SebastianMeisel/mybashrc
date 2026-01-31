@@ -1,17 +1,28 @@
+# Keyboard layout shortcuts (German ß keys mapped to SSH-related commands)
 alias ßh=shh
 alias ß=ss
 
+# Set default output field separator for awk to space (for better readability)
 alias awk='awk -v OFS=" " '
+
+# PDF booklet creation with A4 paper size
 alias pdfbook='pdfbook2 -spa4paper'
+
+# Use neovim instead of vim
 alias vim=nvim
+# Edit files with sudo using neovim
 alias suvi='sudo nvim'
+
+# Git shortcuts for common operations
 alias gS='git status'
-alias gC='git add -A && git commit -am'
+alias gC='git add -A && git commit -am'  # Stage all and commit with message
 alias gP='git push'
-alias gF='git pull --rebase'
+alias gF='git pull --rebase'  # Pull with rebase to keep history clean
 alias gc='git clone'
 
-alias lsda='find . -maxdepth 1 -type d'
-alias lsd="lsda -not -regex '^\./\..*'"
+# Directory listing helpers
+alias lsda='find . -maxdepth 1 -type d'  # List all directories (including hidden)
+alias lsd="lsda -not -regex '^\./\..*'"  # List directories excluding hidden ones
 
+# Open files with default application (cross-platform)
 alias open='xdg-open'

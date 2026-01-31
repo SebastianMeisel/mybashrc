@@ -1,3 +1,7 @@
+# Display weather information for a given location using wttr.in
+# Usage: wetter [location]
+# Defaults to "Mölschow" if no location is specified
+# Example: wetter Berlin
 function wetter () {
   local PLACE=${1:-"Mölschow"}
   curl https:/wttr.in/${PLACE}

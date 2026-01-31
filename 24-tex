@@ -1,1 +1,4 @@
+# Configure custom TeX directory for personal LaTeX packages and styles
+# TEXMFHOME tells TeX where to look for user-installed packages
+# This points to a Dropbox-synced location for easy sharing across machines
 export TEXMFHOME=${HOME}/Dropbox/TeX/texmf

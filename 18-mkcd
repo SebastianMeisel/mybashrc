@@ -1,3 +1,6 @@
+# Create a directory and immediately change into it
+# Usage: mkcd new_directory
+# The $_ variable contains the last argument of the previous command (the directory name)
 function mkcd () {
 mkdir $@
 cd $_

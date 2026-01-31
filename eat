@@ -1,2 +1,0 @@
-# Check if EAT_SHELL_INTEGRATION_DIR is set and source the integration script
-[ -n "$EAT_SHELL_INTEGRATION_DIR" ] && source "$EAT_SHELL_INTEGRATION_DIR/bash"

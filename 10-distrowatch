@@ -1,1 +1,3 @@
+# Quick alias to enter the Arch Linux distrobox container as root
+# Requires distrobox to be installed with an 'arch' container configured
 alias arch='distrobox enter --root arch'

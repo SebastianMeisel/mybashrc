@@ -1,4 +1,14 @@
-# Anwesenheit aus Teams
+# Process Microsoft Teams meeting attendance lists
+# Converts from Teams' UTF-16LE CSV export to a clean, sorted, readable format
+# Usage: Anwesenheit [filename]
+# Default filename: meetingAttendanceList.csv
+#
+# Processing steps:
+# 1. Convert UTF-16LE encoding to UTF-8
+# 2. Filter out lines containing "Meisel" or "Anwesenheit" (headers/own name)
+# 3. Skip first line (header)
+# 4. Sort and remove duplicates
+# 5. Format as aligned columns
 function Anwesenheit () { 	
 	file=${1:-"meetingAttendanceList.csv"}
 	iconv -f UTF-16LE -t UTF-8  ${file} |\

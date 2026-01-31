@@ -1,1 +1,3 @@
+# Add user's local bin directory to PATH with highest priority
+# This allows user-installed scripts and binaries to override system defaults
 export PATH=${HOME}/.local/bin:${PATH}

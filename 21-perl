@@ -1,5 +1,18 @@
+# Configure local::lib for per-user Perl module installation
+# This allows installing Perl modules without root privileges
+# Modules will be installed to ~/perl5/ instead of system directories
+
+# Add local Perl binaries to PATH
 PATH="/home/sebastian/perl5/bin${PATH:+:${PATH}}"; export PATH;
+
+# Set library search path for Perl modules
 PERL5LIB="/home/sebastian/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+
+# Configure local::lib root directory
 PERL_LOCAL_LIB_ROOT="/home/sebastian/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+
+# Set install location for Module::Build
 PERL_MB_OPT="--install_base \"/home/sebastian/perl5\""; export PERL_MB_OPT;
+
+# Set install location for ExtUtils::MakeMaker
 PERL_MM_OPT="INSTALL_BASE=/home/sebastian/perl5"; export PERL_MM_OPT;

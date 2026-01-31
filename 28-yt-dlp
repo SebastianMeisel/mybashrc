@@ -1,1 +1,4 @@
+# Run yt-dlp through pipenv for dependency isolation
+# This ensures yt-dlp runs in a controlled virtual environment
+# Useful when yt-dlp has specific Python dependency requirements
 alias yt-dlp='pipenv run yt-dlp'

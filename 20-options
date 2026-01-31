@@ -1,4 +1,10 @@
+# Configure shell options for safer and more convenient operation
 
+# Prevent accidental file overwrites with redirection (use >| to force)
 set -C
+
+# Allow changing directory by typing just the directory name (no 'cd' needed)
 shopt -s autocd
+
+# Automatically correct minor spelling errors in directory names during 'cd'
 shopt -s cdspell

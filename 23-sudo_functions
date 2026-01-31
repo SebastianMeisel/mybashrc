@@ -1,3 +1,8 @@
+# Polite sudo wrappers in English and German
+# These add a friendly response before executing commands with sudo privileges
 
+# English version: "please do something"
 function please { echo "You're welcome!"; echo; sudo $@;}
-function bitte { echo "Gerne!"; echo; sudo $@;}
+
+# German version: "bitte do something" (bitte = please)
+function bitte { echo "Gerne!"; echo; sudo $@;}  # Gerne = You're welcome

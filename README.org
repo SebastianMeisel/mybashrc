@@ -1,19 +1,71 @@
 #+TITLE: My .bashrc snippets
 #+AUTHOR: Sebastian Meisel
 
+* Overview
+
+A collection of modular bash configuration snippets for enhanced shell productivity.
+Each snippet is a self-contained file that adds specific functionality to your bash environment.
+
+* Features
+
+- **Modular design**: Each script handles one specific task or feature
+- **Easy to customize**: Simply prefix unwanted scripts with =_= to disable them
+- **Well-documented**: All scripts now include comprehensive inline comments
+- **No dependencies between most scripts**: Pick and choose what you need
+- **Organized by number**: Scripts load in a predictable order (00-99)
+
 * Usage
 
- 1) Clone the repository to =.bashrc.d= in your Home directory.
- 2) To exclude certain snippets add an underscore (~_~) at the beginning of the filename.
- 3) Add the following to your =.bashrc=:
+** Installation
+
+ 1) Clone the repository to =.bashrc.d= in your Home directory:
+    #+BEGIN_SRC bash
+    git clone <repository-url> ~/.bashrc.d
+    #+END_SRC
+
+ 2) Add the following to your =.bashrc= to source all numbered scripts:
+    #+BEGIN_SRC bash
+    [[ -d ~/.bashrc.d ]] && for f in ~/.bashrc.d/[0-9][0-9]-* ; do . ${f} ; done 
+    #+END_SRC
+
+ 3) Restart your shell or run =source ~/.bashrc= to apply changes.
+
+** Customization
+
+To exclude certain snippets, add an underscore (~_~) at the beginning of the filename.
+For example, to disable the weather function:
 #+BEGIN_SRC bash
-  [[ -d ~.bashrc.d ]] && for f in ~/.bashrc.d/[0-9][0-9]-* ; do . ${f} ; done 
+mv ~/.bashrc.d/09-curl ~/.bashrc.d/_09-curl
 #+END_SRC
 
-I use 00-obscureIPv6Prefix to hide my IPv6 prefix for online sharing. If you don't want this feature, remove all
-occurences of =| opbscureIPv6= in 99-ip.
+** Privacy Note
 
-* Avaiable snippets
+I use =00-obscureIPv6Prefix= to hide my IPv6 prefix when sharing terminal output online.
+If you don't want this feature, you can:
+- Disable it by renaming: =mv 00-obscureIPv6Prefix _00-obscureIPv6Prefix=
+- Or remove all occurrences of =| obscureIPv6= in =99-ip= and =00-obscureIPv6Prefix=
+
+* Quick Reference
+
+Here's a summary of the most useful functions and aliases:
+
+| Command/Function | Description | Example |
+|------------------+-------------+---------|
+| === | Calculator with European number format | === "12,5 · 3" |
+| ==x= | Convert decimal to hex | ==x 255= |
+| ==b= | Convert decimal to binary | ==b 13= |
+| =gS=, =gC=, =gP=, =gF= | Git shortcuts (status/commit/push/pull) | =gC "Fix bug"= |
+| =ipbrief= | Colorized, formatted network info | =ipbrief a= |
+| =wetter= | Get weather for location | =wetter Berlin= |
+| =mkcd= | Create directory and cd into it | =mkcd newdir= |
+| =please= / =bitte= | Polite sudo | =please dnf update= |
+| =lout= / =?= | Bookmark command output | =ls \vert lout=, then =? 5= |
+| =grepln= / =emacsln= | Find & open file at pattern | =emacsln "TODO" file.txt= |
+| =Anwesenheit= | Process Teams attendance CSV | =Anwesenheit meeting.csv= |
+| =KiB=, =MiB=, =GiB= | Convert IEC units to bytes | =GiB 5= |
+| =tesed= | Test sed changes interactively | =tesed 's/old/new/g' file= |
+
+* Available snippets
 ** 00-obscureIPv6Prefix — IPv6 prefix masking & helpers
   Small helpers to keep public outputs private by masking your global IPv6 prefix; includes wrappers for =tracepath= and =ip=.
 
@@ -340,10 +392,55 @@ complete -F _tmux tmux
 
 ---
 
-* Notes
+* Dependencies & Requirements
 
- - Some helpers rely on others (e.g., =ipbrief= → =obscureIPv6=, prompt colors → =08-colors=). Source order matters.
- - Aliases/functions with Unicode names (e.g., =ß=) require UTF-8 locale in your shell.
+** Script Dependencies
+
+Some scripts depend on others:
+- =02-PS1= (prompt) requires =08-colors= for color variables
+- =99-ip= and related functions use =00-obscureIPv6Prefix= for privacy masking
+- Source order matters: scripts are loaded in numerical order (00-99)
+
+** External Tools
+
+Some scripts require external tools to be installed:
+- =05-calc=: requires =bc= (calculator)
+- =10-distrowatch=: requires =distrobox=
+- =11-eat=: requires Emacs with Eat terminal emulator
+- =13-fontpreview=: requires =fontpreview= utility
+- =19-ntfy= / =27-update=: require =curl= and ntfy.sh service
+- =26-units.sh=: requires =bc= (calculator)
+- =28-yt-dlp=: requires =pipenv= and =yt-dlp=
+- =atuin=: requires Atuin shell history tool
+
+** Locale Requirements
+
+- Aliases/functions with Unicode names (e.g., =ß= in =03-alias=) require UTF-8 locale
+- Set in your shell: =export LANG=en_US.UTF-8= or similar
+
+* Troubleshooting
+
+** Scripts Not Loading
+
+If your scripts aren't being sourced:
+1. Check that the sourcing line is in your =~/.bashrc= (not =~/.bash_profile=)
+2. Verify the glob pattern matches your files: =ls ~/.bashrc.d/[0-9][0-9]-*=
+3. Ensure files are readable: =chmod +r ~/.bashrc.d/*=
+
+** Function Not Found
+
+If a function isn't available:
+1. Check if the script is prefixed with =_= (disabled)
+2. Verify the script loaded: =type function_name=
+3. Check for syntax errors: =bash -n ~/.bashrc.d/script-name=
+
+** Path Issues
+
+If custom paths aren't working:
+1. Check load order - PATH scripts (01, 06, 21, 22) should load early
+2. Verify paths exist: =ls -ld ~/.local/bin ~/.cargo/bin=
+3. Reload your shell or run =source ~/.bashrc=
+
 ------
 
 

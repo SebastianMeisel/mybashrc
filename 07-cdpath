@@ -1,1 +1,4 @@
+# Configure CDPATH to enable quick directory changes without full paths
+# With this setting, 'cd project' will search in these directories:
+#   . (current dir), ~ (home), ~/git, /etc, ~/Dokumente, ~/Documents
 export CDPATH=.:~:~/git:/etc:~/Dokumente:~/Documents

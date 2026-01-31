@@ -1,1 +1,4 @@
+# Configure Python environment using pyenv
+# Adds pyenv binaries and specific Python version to PATH
+# This allows using pyenv to manage multiple Python versions
 PATH=${HOME}/.pyenv/bin/:~/.pyenv/versions/3.13.1/bin/:${PATH}

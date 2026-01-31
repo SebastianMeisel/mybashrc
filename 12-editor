@@ -1,1 +1,3 @@
+# Set the default text editor to neovim
+# Used by various tools like git, crontab, visudo, etc.
 EDITOR=nvim

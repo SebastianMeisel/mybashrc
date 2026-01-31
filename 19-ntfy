@@ -1,3 +1,7 @@
+# Send a notification message to an ntfy endpoint
+# Usage: ntfy "Your message here"
+# Sends a POST request to ln1/tea (shortened URL for ntfy.sh)
+# Useful for getting notified when long-running commands complete
 function ntfy () { 
 	curl -d "$@" ln1/tea 
 	}

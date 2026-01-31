@@ -1,41 +1,60 @@
 #!/bin/bash
+
+# Shell calculator using bc with locale-friendly input/output
+# Accepts European number format (comma as decimal separator, · as multiplication)
+# Usage: = "12,5 · 3" -> outputs 37,50
+# The second argument sets decimal precision (default: 2)
 function = () {
         rechnung=$(printf "%s" "$@")
+	# Convert European format to bc format, calculate, then convert back
+	# Also adds thousand separators (dots) for readability
 	echo "scale=${2:-2} ; ${rechnung}" | \
 		sed -E -e '{s/,/./g; s/·/*/g' -e "s/^|$/\'/g}"  | \
 		xargs -I{} echo {} | bc | sed -r 's/\./,/g;:loop;s|\b([0-9]+)([0-9]{3})\b|\1.\2|g;t loop'
 }
 
-# binary to hex
+# Convert binary to hexadecimal
+# Usage: =bx "1111 0000 1010" -> outputs F0 0A
+# Spaces in input are ignored for convenience
 function =bx () {
     binary=$(sed 's/ //g' <<< "$@")
     echo "ibase=2; obase=10000; $binary" | bc | sed -E 's/(..)/\1 /g'
 	}
 
-# decimal to hex
+# Convert decimal to hexadecimal
+# Usage: =x 255 -> outputs FF
+# Output is space-separated by byte pairs for readability
 function =x () {
     decimal=$(printf "%s" $@ )
     echo "ibase=10; obase=16; $decimal" | bc | sed -E 's/(..)/\1 /g'
 	}
 
-# hex to decimal
+# Convert hexadecimal to decimal
+# Usage: =xd "F0A" or =xd "F0 A" -> outputs formatted decimal with thousand separators
+# Spaces in input are ignored
 function =xd () {
     hex=$(sed 's/ //g' <<< "$@")
     echo "ibase=16;  $hex" | bc | sed -r ':loop;s|\b([0-9]+)([0-9]{3})\b|\1.\2|g;t loop'
 	}
 
-# decimal to binary
+# Convert decimal to binary
+# Usage: =b 13 -> outputs 1101
 function =b () {
     decimal=$(printf "%s" $@ )
     echo "ibase=10; obase=2; $decimal" | bc
 	}
 	
-# binary to decimal
+# Convert binary to decimal
+# Usage: =bd "1101" or =bd "1101 0010" -> outputs formatted decimal with thousand separators
+# Spaces in input are ignored
 function =bd () {
     binary=$(sed 's/ //g' <<< "$@")
     echo "ibase=2;  $binary" | bc | sed -r ':loop;s|\b([0-9]+)([0-9]{3})\b|\1.\2|g;t loop'
 	}
 
+# Support for standalone execution when symlinked to ~/.local/bin/
+# This allows using these functions as standalone commands
+# Example: ln -s ~/.bashrc.d/05-calc ~/.local/bin/=
 case $0 in
    ${HOME}/.local/bin/=) echo $@
 	= "$@" 

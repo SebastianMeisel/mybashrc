@@ -1,3 +1,5 @@
-# print odd pages
+# Duplex printing helpers for manual two-sided printing
+# First print odd pages with lpodd, flip the paper stack, then print even pages with lpeven
+# Configured for EPSON ET-2820 printer
 alias lpodd='lpr -o page-set=odd -P EPSON_ET_2820_Series'
 alias lpeven='lpr -o page-set=even -P EPSON_ET_2820_Series'
