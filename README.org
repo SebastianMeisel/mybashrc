@@ -8,11 +8,11 @@ Each snippet is a self-contained file that adds specific functionality to your b
 
 * Features
 
-- **Modular design**: Each script handles one specific task or feature
-- **Easy to customize**: Simply prefix unwanted scripts with =_= to disable them
-- **Well-documented**: All scripts now include comprehensive inline comments
-- **No dependencies between most scripts**: Pick and choose what you need
-- **Organized by number**: Scripts load in a predictable order (00-99)
+- *Modular design*: Each script handles one specific task or feature
+- *Easy to customize*: Simply prefix unwanted scripts with =_= to disable them
+- *Well-documented*: All scripts now include comprehensive inline comments
+- *No dependencies between most scripts*: Pick and choose what you need
+- *Organized by number*: Scripts load in a predictable order (00-99)
 
 * Usage
 
@@ -68,16 +68,16 @@ Here's a summary of the most useful functions and aliases:
 * Available snippets
 
 Scripts are now organized into logical groups:
-- **00-09**: Core shell configuration (colors, options, PATH, prompt)
-- **10-19**: Language-specific PATH setup (Rust, Perl, Python, TeX)
-- **20-29**: Terminal integration and tools (Eat, Atuin, tmux, editor)
-- **30-39**: Aliases and shortcuts
-- **40-49**: Directory and file operations
-- **50-59**: Shell functions and utilities
-- **60-69**: Calculation and conversion tools
-- **70-79**: Text and data processing
-- **80-89**: Application-specific tools
-- **90-99**: Network and privacy tools
+- *00-09*: Core shell configuration (colors, options, PATH, prompt)
+- *10-19*: Language-specific PATH setup (Rust, Perl, Python, TeX)
+- *20-29*: Terminal integration and tools (Eat, Atuin, tmux, editor)
+- *30-39*: Aliases and shortcuts
+- *40-49*: Directory and file operations
+- *50-59*: Shell functions and utilities
+- *60-69*: Calculation and conversion tools
+- *70-79*: Text and data processing
+- *80-89*: Application-specific tools
+- *90-99*: Network and privacy tools
 
 ** 00-colors — ANSI color variables (prompt-safe + raw)
   Defines prompt-escaped and raw colors; also enriches =awk= with colors and tabular OFS.
