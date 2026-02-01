@@ -51,7 +51,7 @@ Here's a summary of the most useful functions and aliases:
 
 | Command/Function | Description | Example |
 |------------------+-------------+---------|
-| === | Calculator with European number format | === "12,5 · 3" |
+| ~=~ | Calculator with European number format | ~=~ "12,5 · 3"   |
 | ==x= | Convert decimal to hex | ==x 255= |
 | ==b= | Convert decimal to binary | ==b 13= |
 | =gS=, =gC=, =gP=, =gF= | Git shortcuts (status/commit/push/pull) | =gC "Fix bug"= |
