@@ -1,7 +1,7 @@
 #: OBSCUREIPv6
 #:    Adds alias `obscureIPv6` that overwrites part of the IPv6-prefix in output.
 
-#4c80c58> Pick first UP Ethernet; if none, first UP Wi-Fi.
+#4c80c58>   Pick first UP Ethernet; if none, first UP Wi-Fi.
 _pick_ipv6_dev() {
   local dev
 
