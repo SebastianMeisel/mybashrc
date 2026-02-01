@@ -53,7 +53,7 @@ Here's a summary of the most useful functions and aliases:
 |------------------+-------------+---------|
 | ~=~ | Calculator with European number format | ~=~ "12,5 · 3"   |
 | ~=x~  | Convert decimal to hex | ~=x 255~   |
-| ==b= | Convert decimal to binary | ==b 13= |
+| ~=b~  | Convert decimal to binary | ~=b 13~   |
 | =gS=, =gC=, =gP=, =gF= | Git shortcuts (status/commit/push/pull) | =gC "Fix bug"= |
 | =ipbrief= | Colorized, formatted network info | =ipbrief a= |
 | =wetter= | Get weather for location | =wetter Berlin= |
