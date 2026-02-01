@@ -21,10 +21,10 @@ function tesed () {
 	if [[ -x $(which wdiff ) ]];  then
 		if [[ -x $(which colordiff ) ]]; then
 		      	>&2 echo "Using colordiff with wdiff."
-			wdiff "$FILE" "$TMP" | colordiff --color=yes --difftype=diffy 
+			wdiff  --no-common "$FILE" "$TMP" | colordiff --color=yes --difftype=diffy 
 		else
 		      	>&2 echo "Using wdiff."
-			wdiff "$FILE" "$TMP"
+			wdiff  --no-common "$FILE" "$TMP"
 		fi
 	else
 		if [[ -x $(which colordiff ) ]]; then
