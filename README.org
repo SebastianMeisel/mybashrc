@@ -18,7 +18,7 @@ Each snippet is a self-contained file that adds specific functionality to your b
 
 ** Prerequisites 
 
-To use =atuin= (=60-atuin=) install [[https:https://github.com/akinomyoga/ble.sh][ble.sh]] and 
+To use =atuin= (=60-atuin=) install [[https://github.com/akinomyoga/ble.sh][ble.sh]] and [[https://docs.atuin.sh/cli/guide/installation/][atuin]].
 
 ** Installation
 
