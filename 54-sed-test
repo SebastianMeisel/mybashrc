@@ -20,18 +20,18 @@ function tesed () {
 	# Choose diff tool
 	if [[ -x $(which wdiff ) ]];  then
 		if [[ -x $(which colordiff ) ]]; then
-		      	&2> echo "Using colordiff with wdiff."
+		      	>&2 echo "Using colordiff with wdiff."
 			wdiff "$FILE" "$TMP" | colordiff --color=yes --difftype=diffy 
 		else
-		      	&2> echo "Using wdiff."
+		      	>&2 echo "Using wdiff."
 			wdiff "$FILE" "$TMP"
 		fi
 	elseg
 		if [[ -x $(which colordiff ) ]]; then
-		      	&2> echo "Using colordiff with diff."
+		      	>&2 echo "Using colordiff with diff."
 			diff -y "$FILE" "$TMP" | colordiff --difftype=diffy --color=yes 
 		else
-		      	&2> echo "Using standard diff."
+		      	>&2 echo "Using standard diff."
 			diff -y "$FILE" "$TMP"
 		fi
 	fi
