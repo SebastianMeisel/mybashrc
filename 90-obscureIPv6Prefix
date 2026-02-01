@@ -5,27 +5,12 @@
 _pick_ipv6_dev() {
   local dev
 
-  # 1) Ethernet, UP
-  dev="$(
-    /usr/sbin/ip -o link show up 2>/dev/null \
-    | sed -nE 's/^[0-9]+: ([^:]+):.*$/\1/p' \
-    | while IFS= read -r d; do
-        /usr/sbin/ip -d -o link show "$d" 2>/dev/null | grep -qiE 'link/ether' && { echo "$d"; break; }
-      done
-  )"
-  if [[ -n "$dev" ]]; then
-    printf '%s\n' "$dev"
-    return 0
-  fi
+  dev="$(ip --color=never l show up | \
+  awk '/^[0-9]+: (eth|en|wlp)[^:]*:.*UP/
+  { iface = $2; getline; if ($1 == "link/ether")
+  { sub(/:$/, "", iface); print iface } }
+  ')"
 
-  # 2) Wi-Fi, UP (match common kernel driver info / "wifi"/"wireless")
-  dev="$(
-    /usr/sbin/ip -o link show up 2>/dev/null \
-    | sed -nE 's/^[0-9]+: ([^:]+):.*$/\1/p' \
-    | while IFS= read -r d; do
-        /usr/sbin/ip -d -o link show "$d" 2>/dev/null | grep -qiE '(wifi|wireless|wlan)' && { echo "$d"; break; }
-      done
-  )"
   [[ -n "$dev" ]] && printf '%s\n' "$dev"
 }
 
