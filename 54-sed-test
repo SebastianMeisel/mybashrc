@@ -11,7 +11,7 @@ function tesed () {
 	local CODE=$1
 	local FILE=$2
 	if [[ -x $(which colordiff) ]] ; then
-	   colordiff --difftype=diffy --color=yes $FILE <(sed $CODE $FILE)
+	   colordiff --difftype=diffw --color=yes $FILE <(sed $CODE $FILE)
 	else
 	   diff -y $FILE <(sed $CODE $FILE)
 	fi
