@@ -18,15 +18,15 @@ function tesed () {
 	sed "$CODE" "$FILE" >|"$TMP"
 
 	# Choose diff tool
-	if command -v wdiff >/dev/null 2>&1; then
-		if command -v colordiff >/dev/null 2>&1; then
-			colordiff <(wdiff "$FILE" "$TMP")
+	if command -v wdiff >/dev/null 2>&1;  then
+		if command -v colordiff >/dev /null 2>&1; then
+			wdiff "$FILE" "$TMP" | colordiff
 		else
 			wdiff "$FILE" "$TMP"
 		fi
 	else
 		if command -v colordiff >/dev/null 2>&1; then
-			colordiff --difftype=diffw "$FILE" "$TMP"
+			diff -y "$FILE" "$TMP" | colordiff --difftype=diffy 
 		else
 			diff -y "$FILE" "$TMP"
 		fi
