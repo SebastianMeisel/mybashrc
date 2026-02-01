@@ -7,20 +7,37 @@
 # 3. If confirmed, applies the change and creates a timestamped backup
 #
 # Example: tesed 's/foo/bar/g' myfile.txt
+# Example: tesed 's/foo/bar/g' myfile.txt
 function tesed () {
 	local CODE=$1
 	local FILE=$2
-	if [[ -x $(which colordiff) ]] ; then
-	   colordiff --difftype=diffw --color=yes $FILE <(sed $CODE $FILE)
+
+	# Generate sed output once
+	local TMP
+	TMP=$(mktemp)
+	sed "$CODE" "$FILE" >"$TMP"
+
+	# Choose diff tool
+	if command -v wdiff >/dev/null 2>&1; then
+		if command -v colordiff >/dev/null 2>&1; then
+			colordiff <(wdiff "$FILE" "$TMP")
+		else
+			wdiff "$FILE" "$TMP"
+		fi
 	else
-	   diff -y $FILE <(sed $CODE $FILE)
+		if command -v colordiff >/dev/null 2>&1; then
+			colordiff --difftype=diffw "$FILE" "$TMP"
+		else
+			diff -y "$FILE" "$TMP"
+		fi
 	fi
+
+	rm -f "$TMP"
+
 	# Prompt for confirmation
-	local answer=$(read -p '[y/N]' a ; echo $a) 
+	local answer
+	read -p '[y/N] ' answer
+
 	# Apply changes if user confirms with 'y', creating a dated backup
-	[[ "y" =~ $answer && ! -z $answer ]] \
-	&& sed -i"~$(date +%x)" $CODE $FILE
-	}
-
-
-
+	[[ $answer == y ]] && sed -i"~$(date +%x)" "$CODE" "$FILE"
+}
