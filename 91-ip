@@ -2,7 +2,7 @@
 
 # Pipe through obscureIPv6 if it exists (function, alias, or command),
 # otherwise pass output through unchanged.
-_maybe_obscure_ipv6() {
+_maybe_obscure_IPv6() {
   if type -t obscureIPv6 >/dev/null 2>&1; then
     obscureIPv6
   else
