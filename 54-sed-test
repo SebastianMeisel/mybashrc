@@ -10,7 +10,7 @@
 function tesed () {
 	local CODE=$1
 	local FILE=$2
-	[[ -x $(which colordiff) ]] && alias diff=colordiff
+	[[ -x $(which colordiff) ]] && alias diff='colordiff
 	# Show side-by-side diff of original and transformed file
 	diff -y $FILE <(sed $CODE $FILE)
 	# Prompt for confirmation
