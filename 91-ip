@@ -147,7 +147,7 @@ function ipbrief() {
         if (NF < 3) {
             printf("\n")
         }
-    }' | _maybe_obscureIPv6
+    }' | _maybe_obscure_IPv6
 }
 
 function ping() {
