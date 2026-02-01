@@ -1,62 +1,12 @@
-#: OBSCUREIPv6
-#:    Adds alias `obscureIPv6` that overwrites part of the IPv6-prefix in output.
-
-# Pick first UP Ethernet; if none, first UP Wi-Fi.
-_pick_ipv6_dev() {
-  local dev
-
-  # 1) Ethernet, UP
-  dev="$(
-    /usr/sbin/ip -o link show up 2>/dev/null \
-    | sed -nE 's/^[0-9]+: ([^:]+):.*$/\1/p' \
-    | while IFS= read -r d; do
-        /usr/sbin/ip -d -o link show "$d" 2>/dev/null | grep -qiE 'link/ether' && { echo "$d"; break; }
-      done
-  )"
-  if [[ -n "$dev" ]]; then
-    printf '%s\n' "$dev"
-    return 0
-  fi
-
-  # 2) Wi-Fi, UP (match common kernel driver info / "wifi"/"wireless")
-  dev="$(
-    /usr/sbin/ip -o link show up 2>/dev/null \
-    | sed -nE 's/^[0-9]+: ([^:]+):.*$/\1/p' \
-    | while IFS= read -r d; do
-        /usr/sbin/ip -d -o link show "$d" 2>/dev/null | grep -qiE '(wifi|wireless|wlan)' && { echo "$d"; break; }
-      done
-  )"
-  [[ -n "$dev" ]] && printf '%s\n' "$dev"
-}
-
-# Extract a (stable-ish) prefix chunk from the first global IPv6 on that dev.
-# This keeps your original idea: "2xxx:....:....:...." (first 4 hextets).
-_get_ipv6_prefix_from_dev() {
-  local dev="$1"
-  [[ -z "$dev" ]] && return 1
-
-  # Prefer a global (not link-local) IPv6, take first occurrence.
-  # Output is "2abc:def0:1234:5678" (4 hextets).
-  /usr/sbin/ip -6 -o addr show dev "$dev" scope global 2>/dev/null \
-    | sed -nE 's/.* inet6 ([0-9a-fA-F:]+)\/[0-9]+.*/\1/p' \
-    | sed -nE 's/^2([[:xdigit:]]{3})((:[[:xdigit:]]{1,4}){3}).*$/2\1\2/p' \
-    | head -n1
-}
-
-# Device and prefix (computed at shell init time)
-export myIPv6Dev="$(_pick_ipv6_dev)"
-export myIPv6Prefix="$(_get_ipv6_prefix_from_dev "$myIPv6Dev")"
-
-# Default obscurer
-alias obscureIPv6='sed -E "s%(m|[[:space:]]|[(])[23][0-9a-f]{3}:[0-9a-f]{1,4}:%\13fff:abc:%g"'
-
-#:   set `dontObscureIPv6` variable to suppress this behaviour.
-[[ -n "${dontObscureIPv6-}" ]] && alias obscureIPv6=':'
-
-function tracepath() {
-  /usr/sbin/tracepath "$@" | obscureIPv6
-}
-
-function ip() {
-  /usr/sbin/ip -h -s --color=always "$@" | obscureIPv6
-}
+# Initialize Atuin shell history tool if not in Globe environment
+# Atuin provides improved shell history with sync and search capabilities
+# Skipped if ~/.globe exists (different environment/configuration)
+if [[ ! -f ~/.globe ]]
+  then 
+    # Load ble.sh
+    [[ -f ~/.local/share/blesh/ble.sh ]] && source ~/.local/share/blesh/ble.sh
+    # Source bash-preexec if available (required for Atuin)
+    [[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
+    # Initialize Atuin for bash
+    eval "$(atuin init bash)"
+fi
