@@ -10,9 +10,11 @@
 function tesed () {
 	local CODE=$1
 	local FILE=$2
-	[[ -x $(which colordiff) ]] && alias diff='colordiff --difftype=side-by-side-diff --color=yes'
-	# Show side-by-side diff of original and transformed file
-	diff -y $FILE <(sed $CODE $FILE)
+	if [[ -x $(which colordiff) ]] ; then
+	   colordiff --difftype=side-by-side-diff --color=yes $FILE <(sed $CODE $FILE)
+	else
+	   diff -y $FILE <(sed $CODE $FILE)
+	fi
 	# Prompt for confirmation
 	local answer=$(read -p '[y/N]' a ; echo $a) 
 	# Apply changes if user confirms with 'y', creating a dated backup
