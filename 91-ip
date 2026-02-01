@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Pipe through obscureIPv6 if it exists (function, alias, or command),
+# otherwise pass output through unchanged.
+_maybe_obscure_ipv6() {
+  if type -t obscureIPv6 >/dev/null 2>&1; then
+    obscureIPv6
+  else
+    cat
+  fi
+}
 
 # Enhanced ip command wrapper that provides colored, formatted output
 # for network interface information, routing tables, and neighbor entries
@@ -138,7 +147,7 @@ function ipbrief() {
         if (NF < 3) {
             printf("\n")
         }
-    }' | obscureIPv6
+    }' | _maybe_obscureIPv6
 }
 
 function ping() {
