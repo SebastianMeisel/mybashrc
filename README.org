@@ -16,6 +16,10 @@ Each snippet is a self-contained file that adds specific functionality to your b
 
 * Usage
 
+** Prerequisites 
+
+To use =atuin= (=60-atuin=) install 
+
 ** Installation
 
  1) Clone the repository to =.bashrc.d= in your Home directory:
@@ -29,7 +33,6 @@ Each snippet is a self-contained file that adds specific functionality to your b
     #+END_SRC
 
  3) Restart your shell or run =source ~/.bashrc= to apply changes.
-
 ** Customization
 
 To exclude certain snippets, add an underscore (~_~) at the beginning of the filename.
