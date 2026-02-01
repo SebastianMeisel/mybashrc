@@ -3,10 +3,6 @@
 # Skipped if ~/.globe exists (different environment/configuration)
 if [[ ! -f ~/.globe ]]
   then 
-    # Load Atuin environment variables
-    . "$HOME/.atuin/bin/env"
-    # Source bash-preexec if available (required for Atuin)
-    [[ -f ~/.bash-preexec.sh ]] && source ~/.bash-preexec.sh
     # Initialize Atuin for bash
     eval "$(atuin init bash)"
 fi
