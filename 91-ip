@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 # Enhanced ip command wrapper that provides colored, formatted output
 # for network interface information, routing tables, and neighbor entries
 function ipbrief() {
