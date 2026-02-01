@@ -26,7 +26,7 @@ function tesed () {
 		      	>&2 echo "Using wdiff."
 			wdiff "$FILE" "$TMP"
 		fi
-	elseg
+	else
 		if [[ -x $(which colordiff ) ]]; then
 		      	>&2 echo "Using colordiff with diff."
 			diff -y "$FILE" "$TMP" | colordiff --difftype=diffy --color=yes 
