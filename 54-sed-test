@@ -15,7 +15,7 @@ function tesed () {
 	# Generate sed output once
 	local TMP
 	TMP=$(mktemp)
-	sed "$CODE" "$FILE" >"$TMP"
+	sed "$CODE" "$FILE" >|"$TMP"
 
 	# Choose diff tool
 	if command -v wdiff >/dev/null 2>&1; then
