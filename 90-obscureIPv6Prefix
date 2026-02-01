@@ -6,9 +6,7 @@ _pick_ipv6_dev() {
   local dev
 
   dev="$(ip --color=never l show up | \
-  awk '/^[0-9]+: (eth|en|wlp)[^:]*:.*UP/
-  { iface = $2; getline; if ($1 == "link/ether")
-  { sub(/:$/, "", iface); print iface } }
+  awk '/^[0-9]+: (eth|en|wlp)[^:]*:.*UP/{ iface = $2; getline; if ($1 == "link/ether"){ sub(/:$/, "", iface); print iface } }
   ')"
 
   [[ -n "$dev" ]] && printf '%s\n' "$dev"
