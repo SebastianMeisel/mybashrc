@@ -1,0 +1,69 @@
+_lp_choose_printer() {
+    local default_printer choice
+    local -a printers
+
+    # Default printer: prefer lpstat -d, fallback to lpoptions -d
+    default_printer=$(lpstat -d 2>/dev/null | awk -F': ' '{print $2}')
+    if [[ -z "$default_printer" ]]; then
+        default_printer=$(lpoptions -d 2>/dev/null | sed -n 's/^default=\(.*\)$/\1/p')
+    fi
+
+    # Collect printers
+    mapfile -t printers < <(lpstat -a 2>/dev/null | awk '{print $1}')
+    if [[ ${#printers[@]} -eq 0 ]]; then
+        mapfile -t printers < <(lpstat -p 2>/dev/null | awk '/^printer /{print $2}')
+    fi
+
+    # If still none: allow manual input
+    if [[ ${#printers[@]} -eq 0 ]]; then
+        echo "Keine CUPS-Druckerwarteschlangen gefunden." >&2
+        read -rp "Printer-Name manuell eingeben (leer = abbrechen): " choice >&2
+        [[ -n "$choice" ]] || return 1
+        printf '%s\n' "$choice"
+        return 0
+    fi
+
+    # Print menu to stderr ONLY
+    echo "Available printers:" >&2
+    local i
+    for i in "${!printers[@]}"; do
+        if [[ -n "$default_printer" && "${printers[$i]}" == "$default_printer" ]]; then
+            printf "  %2d) %s (default)\n" "$((i+1))" "${printers[$i]}" >&2
+        else
+            printf "  %2d) %s\n" "$((i+1))" "${printers[$i]}" >&2
+        fi
+    done
+    echo >&2
+
+    if [[ -n "$default_printer" ]]; then
+        read -rp "Choose printer [default: $default_printer]: " choice >&2
+        if [[ -z "$choice" ]]; then
+            printf '%s\n' "$default_printer"
+            return 0
+        fi
+    else
+        read -rp "Choose printer (number): " choice >&2
+    fi
+
+    if [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#printers[@]} )); then
+        printf '%s\n' "${printers[$((choice-1))]}"
+        return 0
+    fi
+
+    echo "Invalid selection." >&2
+    return 1
+}
+
+lpodd() {
+    local printer
+    printer=$(_lp_choose_printer) || return 1
+    lpr -o page-set=odd -P "$printer" "$@"
+}
+
+lpeven() {
+    local printer
+    printer=$(_lp_choose_printer) || return 1
+    lpr -o page-set=even -P "$printer" "$@"
+}
+#2f62a74> (ADDED: Printer Selection)
+
