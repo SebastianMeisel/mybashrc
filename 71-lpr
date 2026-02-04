@@ -1,3 +1,4 @@
+
 _lp_choose_printer() {
     local default_printer choice
     local -a printers
@@ -35,24 +36,30 @@ _lp_choose_printer() {
     done
     echo >&2
 
+    # Use /dev/tty to ensure the prompt is visible and input is captured
     if [[ -n "$default_printer" ]]; then
-        read -rp "Choose printer [default: $default_printer]: " choice >&2
-        if [[ -z "$choice" ]]; then
-            printf '%s\n' "$default_printer"
-            return 0
-        fi
+        printf "Choose printer [default: %s]: " "$default_printer" >&2
+        read -r choice < /dev/tty
+        # If user hits Enter, use the default
+        [[ -z "$choice" ]] && { printf '%s\n' "$default_printer"; return 0; }
     else
-        read -rp "Choose printer (number): " choice >&2
+        printf "Choose printer (number): " >&2
+        read -r choice < /dev/tty
     fi
 
+    # Validation: Check if it's a valid number index
     if [[ "$choice" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= ${#printers[@]} )); then
-        printf '%s\n' "${printers[$((choice-1))]}"
+        # The key: output ONLY the name to stdout
+        printf '%s' "${printers[$((choice-1))]}"
+        return 0
+    # Validation: Check if they typed the name directly
+    elif [[ " ${printers[*]} " == *" $choice "* ]]; then
+        printf '%s' "$choice"
         return 0
     fi
 
-    echo "Invalid selection." >&2
-    return 1
-}
+    echo "Invalid selection: '$choice'" >&2
+    return 1}
 
 lpodd() {
     local printer
