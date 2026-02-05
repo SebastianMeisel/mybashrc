@@ -1,3 +1,3 @@
 #e94f0c8> Hide MESA debug messages on cli
 export MESA_VK_WSI_PRESENT_MODE=mailbox 
-export MESA_DEBUG=silent
+export MESA_DEBUG=quiet
