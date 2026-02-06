@@ -59,7 +59,8 @@ _lp_choose_printer() {
     fi
 
     echo "Invalid selection: '$choice'" >&2
-    return 1}
+    return 1
+    }
 
 lpodd() {
     local printer
