@@ -25,3 +25,4 @@ alias lsda='find . -maxdepth 1 -type d'  # List all directories (including hidde
 alias lsd="lsda -not -regex '^\./\..*'"  # List directories excluding hidden ones
 
 # Open files with default application (cross-platform)
+alias open='xdg-open'
