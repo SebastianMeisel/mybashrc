@@ -1,0 +1,164 @@
+# Usage:
+#   xopen FILE
+#   xopen -a|--ask FILE
+#   xopen -h|--help
+open() {
+  # --- journald logging (warnings + errors) -------------------------------
+  # systemd priorities: emerg alert crit err warning notice info debug
+  _xopen_log() {
+    local prio="$1"; shift
+    local msg="$*"
+    if command -v systemd-cat >/dev/null 2>&1; then
+      # -t sets SYSLOG_IDENTIFIER, -p sets PRIORITY
+      printf '%s\n' "$msg" | systemd-cat -t xopen -p "$prio"
+    else
+      # fallback: stderr
+      printf 'xopen: %s: %s\n' "$prio" "$msg" >&2
+    fi
+  }
+  _xopen_warn() { _xopen_log warning "$*"; }
+  _xopen_err()  { _xopen_log err     "$*"; }
+
+  local ask=0
+
+  case "${1:-}" in
+    -a|--ask) ask=1; shift ;;
+    -h|--help)
+      cat <<'EOF'
+xopen — Datei öffnen (Default: xdg-open), optional mit App-Auswahl.
+
+Usage:
+  xopen FILE
+  xopen -a|--ask FILE
+EOF
+      return 0
+      ;;
+  esac
+
+  local file="${1:-}"
+  if [[ -z "$file" ]]; then
+    _xopen_err "missing FILE"
+    return 2
+  fi
+  if [[ ! -e "$file" ]]; then
+    _xopen_err "not found: $file"
+    return 2
+  fi
+
+  # Standard: Default-Handler
+  if (( ask == 0 )); then
+    if ! xdg-open -- "$file" >/dev/null 2>&1 & then
+      _xopen_err "xdg-open failed for: $file"
+      return 1
+    fi
+    disown 2>/dev/null || true
+    return 0
+  fi
+
+  # -a/--ask: geeignete Programme finden (via MIME-Typ -> .desktop MimeType=)
+  local mime=""
+  if command -v xdg-mime >/dev/null 2>&1; then
+    mime="$(xdg-mime query filetype -- "$file" 2>/dev/null || true)"
+  fi
+  if [[ -z "$mime" ]] && command -v file >/dev/null 2>&1; then
+    mime="$(file --mime-type -b -- "$file" 2>/dev/null || true)"
+  fi
+  if [[ -z "$mime" ]]; then
+    _xopen_warn "could not determine MIME type for '$file'; falling back to xdg-open"
+    if ! xdg-open -- "$file" >/dev/null 2>&1 & then
+      _xopen_err "xdg-open failed for: $file"
+      return 1
+    fi
+    disown 2>/dev/null || true
+    return 0
+  fi
+
+  # Desktop-Dateien durchsuchen
+  local -a appdirs=(
+    "$HOME/.local/share/applications"
+    "/usr/local/share/applications"
+    "/usr/share/applications"
+  )
+
+  local tmp
+  tmp="$(mktemp -t xopen.XXXXXX)" || { _xopen_err "mktemp failed"; return 1; }
+  # shellcheck disable=SC2064
+  trap "rm -f '$tmp'" RETURN
+
+  local d f desktop_id name
+  for d in "${appdirs[@]}"; do
+    [[ -d "$d" ]] || continue
+    while IFS= read -r -d '' f; do
+      grep -qE "^MimeType=.*(^|;)$mime(;|$)" "$f" 2>/dev/null || continue
+
+      desktop_id="$(basename "$f")"
+      desktop_id="${desktop_id%.desktop}"
+
+      name="$(awk -F= '
+        $0=="[Desktop Entry]"{in=1; next}
+        /^\[/{in=0}
+        in && $1=="Name" {print $2; exit}
+      ' "$f" 2>/dev/null || true)"
+      [[ -n "$name" ]] || name="$desktop_id"
+
+      printf '%s\t%s\n' "$desktop_id" "$name" >>"$tmp"
+    done < <(find "$d" -maxdepth 1 -type f -name '*.desktop' -print0 2>/dev/null)
+  done
+
+  # Duplikate entfernen (desktop_id als Schlüssel)
+  awk -F'\t' '!seen[$1]++' "$tmp" > "${tmp}.uniq" 2>/dev/null && mv "${tmp}.uniq" "$tmp"
+
+  if [[ ! -s "$tmp" ]]; then
+    _xopen_warn "no matching apps for MIME '$mime'; falling back to xdg-open"
+    if ! xdg-open -- "$file" >/dev/null 2>&1 & then
+      _xopen_err "xdg-open failed for: $file"
+      return 1
+    fi
+    disown 2>/dev/null || true
+    return 0
+  fi
+
+  mapfile -t _apps < <(cut -f2 "$tmp")
+  mapfile -t _ids  < <(cut -f1 "$tmp")
+
+  echo "MIME: $mime"
+  echo "Choose an application:"
+  local i=1
+  for name in "${_apps[@]}"; do
+    printf "  %2d) %s\n" "$i" "$name"
+    ((i++))
+  done
+  echo "  0) Cancel"
+
+  local choice
+  while true; do
+    read -r -p "> " choice
+    [[ "$choice" =~ ^[0-9]+$ ]] || { _xopen_warn "non-numeric choice: '$choice'"; echo "Enter a number." >&2; continue; }
+    (( choice == 0 )) && return 0
+    (( choice >= 1 && choice <= ${#_ids[@]} )) || { _xopen_warn "choice out of range: $choice"; echo "Out of range." >&2; continue; }
+    break
+  done
+
+  local picked_id="${_ids[choice-1]}"
+
+  # Starten: bevorzugt gtk-launch (Desktop-ID), sonst gio, sonst xdg-open
+  if command -v gtk-launch >/dev/null 2>&1; then
+    if ! gtk-launch "$picked_id" -- "$file" >/dev/null 2>&1 & then
+      _xopen_err "gtk-launch failed (app='$picked_id', file='$file')"
+      return 1
+    fi
+  elif command -v gio >/dev/null 2>&1; then
+    if ! gio open -- "$file" >/dev/null 2>&1 & then
+      _xopen_err "gio open failed (file='$file')"
+      return 1
+    fi
+  else
+    _xopen_warn "neither gtk-launch nor gio available; using xdg-open"
+    if ! xdg-open -- "$file" >/dev/null 2>&1 & then
+      _xopen_err "xdg-open failed for: $file"
+      return 1
+    fi
+  fi
+
+  disown 2>/dev/null || true
+}
