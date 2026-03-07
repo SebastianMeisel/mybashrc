@@ -59,7 +59,7 @@ export myIPv6Prefix="$(_get_ipv6_prefix_from_dev "$myIPv6Dev")"
 # if this shell function is also named "obscureIPv6", plain "command -v" would
 # find the function itself. "type -P" only resolves real executables in PATH.
 function _has_obscureipv6_executable() {
-  [[ -n "$(type -P obscureipv6 2>/dev/null)" ]]
+  [[ -n "$(type -P obscureIPv6 2>/dev/null)" ]]
 }
 
 # Sed fallback that preserves the original behavior.

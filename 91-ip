@@ -1,160 +1,135 @@
 #!/bin/bash
 
-# Pipe through obscureIPv6 if it exists (function, alias, or command),
+# If this file is sourced in a non-interactive shell, aliases might not expand.
+# Enabling this makes "obscureIPv6" usable when it's defined as an alias.
+shopt -s expand_aliases 2>/dev/null || true
+
+# Pipe through obscureIPv6 if it exists (function, alias, or external command),
 # otherwise pass output through unchanged.
-_maybe_obscure_IPv6() {
-  if type -t obscureIPv6 >/dev/null 2>&1; then
-    obscureIPv6
-  else
-    cat
-  fi
-}
+# Pipe through the best available IPv6 obfuscator:
+#  1) Go binary "obscureipv6" (preferred)
+#  2) shell-defined "obscureIPv6" (function/alias)
+#  3) external command "obscureIPv6"
+#  4) passthrough
 
 # Enhanced ip command wrapper that provides colored, formatted output
 # for network interface information, routing tables, and neighbor entries
-function ipbrief() {
-	/usr/sbin/ip --brief -h -s "$@" | sed -E 's/[[:space:]]+/ /g' | sort -k2 |
-		awk '
+ipbrief() {
+  /usr/sbin/ip --brief -h -s "$@" \
+    | sed -E 's/[[:space:]]+/ /g' \
+    | sort -k2 \
+    | awk '
     BEGIN {
-        # Color codes for output formatting
-        red = "\033[31m"      # Red for errors, default routes, DOWN interfaces
-        green = "\033[32m"    # Green for IPv4 addresses, UP interfaces
-        yellow = "\033[33m"   # Yellow for IPv6 addresses
-        blue = "\033[34m"   # Bkue for MAC addresses
-        reset = "\033[0m"     # Reset color
-        
-        # Variables to track device names for neighbor entries
+        red = "\033[31m"
+        green = "\033[32m"
+        yellow = "\033[33m"
+        blue = "\033[34m"
+        reset = "\033[0m"
         current_device = ""
         color = ""
     }
-    
-    # Skip empty lines
+
     NF == 0 { next }
-    
+
     {
         #######################################
-        # Handle neighbor table entries
-        # Format: IP_ADDRESS DEVICE MAC_ADDRESS [additional_info]
-	if ($1 ~ /[.:]/ && ($3 ~ /([[:xdigit:]]+:)+/ || $3 == "")) {
-            # Set color based on IP version
-            if ($1 ~ /\./) {
-                color = green    # IPv4
-            } else if ($1 ~ /[:]/) {
-                color = yellow   # IPv6
-            }
-            
-            # Only print device name if it differs from previous entry
-            if ($2 == current_device) {
-                device_display = " "
-            } else {
-                device_display = $2
-            }
-            
-            printf("%-10s %s%-15s : %s%-30s%s\n", 
+        # Neighbor table entries
+        # Format (common): IP DEV lladdr MAC ...
+        if ($1 ~ /[.:]/ && ($3 ~ /([[:xdigit:]]+:)+/ || $3 == "")) {
+            if ($1 ~ /\./)      color = green
+            else if ($1 ~ /:/)  color = yellow
+
+            if ($2 == current_device) device_display = " "
+            else                      device_display = $2
+
+            printf("%-10s %s%-15s : %s%-30s%s\n",
                    device_display, blue, $3, color, $1, reset)
-            
+
             current_device = $2
             next
         }
-        
+
         #######################################
-        # Handle routing table and interface entries
-        
-        # Determine color for first column based on content type
-        if ($1 ~ /\./) {                    # IPv4 address/route
-            color = green
-        } else if ($1 ~ /:/) {              # IPv6 address/route
-            color = yellow
-        } else if ($1 ~ /default/) {        # Default route
-            color = red
-        } else if ($1 ~ /unreachable/) {    # Unreachable routes
-            printf("%s%-29s%s 🚫 %s%-30s%s | %-15s\n", 
+        # Routes / interface entries
+        if ($1 ~ /\./)              color = green
+        else if ($1 ~ /:/)          color = yellow
+        else if ($1 ~ /default/)    color = red
+        else if ($1 ~ /unreachable/) {
+            printf("%s%-29s%s 🚫 %s%-30s%s | %-15s\n",
                    red, $2, reset, red, $4, reset, $6)
             next
-        } else {
-            color = reset    # Other routes/unknown
-        }
-        
-        # Print first column with appropriate color
+        } else color = reset
+
         printf("%s%-30s%s", color, $1, reset)
-        
+
         #######################################
-        # Handle routing table entries with "via" (gateway)
+        # Route via gateway
         if ($2 ~ /via/) {
-            if ($3 ~ /[.]/) {                # IPv4 gateway
+            if ($3 ~ /\./)
                 printf("→ %s%-30s%s | %-15s\n", green, $3, reset, $5)
-            } else if ($3 ~ /:/) {          # IPv6 gateway
+            else if ($3 ~ /:/)
                 printf("→ %s%-30s%s | %-15s\n", yellow, $3, reset, $5)
-            } else {
+            else
                 printf("→ %-30s | %-15s\n", $3, $5)
-            }
             next
         }
-        
+
         #######################################
-        # Handle direct routes with "dev" (interface)
+        # Direct route dev
         if ($2 ~ /dev/) {
             printf("→ %s%-30s%s | %-15s\n", red, $3, reset, $5)
             next
         }
-        
+
         #######################################
-        # Handle interface status and addresses
-        
-        # Set color based on interface status
-        if ($2 ~ /UP/) {
-            color = green
-        } else if ($2 ~ /DOWN/) {
-            color = red
-        } else {
-            color = reset
-        }
-        
-        # Print interface status
+        # Interface status + addresses
+        if ($2 ~ /UP/)      color = green
+        else if ($2 ~ /DOWN/) color = red
+        else                color = reset
+
         printf("%s%-20s%s", color, $2, reset)
-        
-        # Process addresses and additional information
+
         for (i = 3; i <= NF; i++) {
-            # Skip metric values and their labels
-            if ($i == "metric") {
-                i++  # Skip the next field (metric value)
-                continue
-            }
-            
-            # Add indentation for additional addresses
-            if (i > 3) {
-                printf("%50s", "")
-            }
-            
-            # Format addresses based on type
-            if ($i ~ /\./) {                # IPv4 address
-                color = green
-	    } else if ($i ~ /([[:xdigit:]]+:)+/) {   #  MAC address
-                color = blue
-            } else if ($i ~ /:/) {   #  MAC address
-                color = yellow
-            } else if ($i ~ /<.*>/) {       # Link information (e.g., <BROADCAST,MULTICAST>)
-                printf("→ %-20s\n", $i)
-                next
-            } else {
-                printf("\n")
-                next
-            }
+            if ($i == "metric") { i++; continue }
+
+            if (i > 3) printf("%50s", "")
+
+            if ($i ~ /\./)                       color = green
+            else if ($i ~ /([[:xdigit:]]+:)+/)   color = blue    # MAC-like
+            else if ($i ~ /:/)                   color = yellow  # IPv6
+            else if ($i ~ /<.*>/) { printf("→ %-20s\n", $i); next }
+            else { printf("\n"); next }
+
             printf("%s%-20s%s\n", color, $i, reset)
         }
-        
-        # Print newline if no addresses are configured
-        if (NF < 3) {
-            printf("\n")
-        }
-    }' | _maybe_obscure_IPv6
+
+        if (NF < 3) printf("\n")
+    }' \
+    | obscure_IPv6
 }
 
-function ping() {
-	IPv6Prefix="$(/usr/sbin/ip a | sed '/lo:/,+5d' | grep -Ev ' (fd[[:xdigit:]]{2}:|fe80:)' | grep -m1 inet6 | grep --color=never -Eo '[^:]2[[:xdigit:]]{3}:[[:xdigit:]]{1,4}:')"
-	pingARG=$(echo -n "$@" | sed "s/3fff:abc:/${IPv6Prefix}/g")
-	/usr/bin/ping ${pingARG} | _maybe_obscure_IPv6
+# Safer ping wrapper:
+# - preserves argument boundaries (arrays)
+# - only rewrites args that contain the placeholder prefix
+# - doesn’t explode if prefix detection fails
+ping() {
+  local IPv6Prefix
+  IPv6Prefix="$(
+    /usr/sbin/ip -6 addr show scope global 2>/dev/null \
+      | awk '/inet6[[:space:]]+2[[:xdigit:]]{3}:/ { sub(/\/.*/, "", $2); print $2; exit }' \
+      | sed -E 's/^((2[[:xdigit:]]{3}:[[:xdigit:]]{1,4}):).*/\1/'
+  )"
+
+  local -a args=()
+  local a
+  for a in "$@"; do
+    if [[ -n "$IPv6Prefix" ]]; then
+      a="${a//3fff:abc:/${IPv6Prefix}}"
+    fi
+    args+=("$a")
+  done
+
+  /usr/bin/ping "${args[@]}" | obscure_IPv6
 }
 
-# Alias for enhanced ip command with human-readable and colored output
-alias ip='ip -h -s --color=always'
+
