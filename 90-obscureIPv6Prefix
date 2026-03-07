@@ -1,40 +1,95 @@
 #: OBSCUREIPv6
-#:    Adds alias `obscureIPv6` that overwrites part of the IPv6-prefix in output.
+#:    Adds function `obscureIPv6` that overwrites part of the IPv6 prefix
+#:    in output.
+#:
+#:    Behavior:
+#:      1. If `dontObscureIPv6` is set and non-empty, output is passed through unchanged.
+#:      2. Else, if an `obscureIPv6` executable is available in $PATH, use it.
+#:      3. Else, fall back to the original sed-based obscurer.
+#:
+#:    The executable is expected to support:
+#:      obscureIPv6 filter
+#:
+#:    This snippet also exports:
+#:      myIPv6Dev
+#:      myIPv6Prefix
 
-#4c80c58>  Pick first UP Ethernet; if none, first UP Wi-Fi.
-_pick_ipv6_dev() {
+# Pick first UP Ethernet; if none, first UP Wi-Fi.
+function _pick_ipv6_dev() {
   local dev
 
-  dev="$(ip --color=never l show up | \
-  awk '/^[0-9]+: (eth|en|wlp)[^:]*:.*UP/{ iface = $2; getline; if ($1 == "link/ether"){ sub(/:$/, "", iface); print iface } }
-  ')"
+  dev="$(
+    ip --color=never l show up | awk '
+      /^[0-9]+: (eth|en|wlp)[^:]*:.*UP/ {
+        iface = $2
+        getline
+        if ($1 == "link/ether") {
+          sub(/:$/, "", iface)
+          print iface
+          exit
+        }
+      }
+    '
+  )"
 
   [[ -n "$dev" ]] && printf '%s\n' "$dev"
 }
 
 # Extract a (stable-ish) prefix chunk from the first global IPv6 on that dev.
-# This keeps your original idea: "2xxx:....:....:...." (first 4 hextets).
-_get_ipv6_prefix_from_dev() {
+# Output shape:
+#   2abc:def0:1234:5678
+# i.e. the first 4 hextets.
+function _get_ipv6_prefix_from_dev() {
   local dev="$1"
   [[ -z "$dev" ]] && return 1
 
-  # Prefer a global (not link-local) IPv6, take first occurrence.
-  # Output is "2abc:def0:1234:5678" (4 hextets).
   /usr/sbin/ip -6 -o addr show dev "$dev" scope global 2>/dev/null \
     | sed -nE 's/.* inet6 ([0-9a-fA-F:]+)\/[0-9]+.*/\1/p' \
     | sed -nE 's/^2([[:xdigit:]]{3})((:[[:xdigit:]]{1,4}){3}).*$/2\1\2/p' \
     | head -n1
 }
 
-# Device and prefix (computed at shell init time)
+# Compute once at shell init.
 export myIPv6Dev="$(_pick_ipv6_dev)"
 export myIPv6Prefix="$(_get_ipv6_prefix_from_dev "$myIPv6Dev")"
 
-# Default obscurer
-alias obscureIPv6='sed -E "s%(m|[[:space:]]|[(])[23][0-9a-f]{3}:[0-9a-f]{1,4}:%\13fff:abc:%g"'
+# Return success if the external obscureIPv6 executable is available.
+#
+# We explicitly reject shell functions/aliases here to avoid recursion:
+# if this shell function is also named "obscureIPv6", plain "command -v" would
+# find the function itself. "type -P" only resolves real executables in PATH.
+function _has_obscureipv6_executable() {
+  [[ -n "$(type -P obscureipv6 2>/dev/null)" ]]
+}
 
-#:   set `dontObscureIPv6` variable to suppress this behaviour.
-[[ -n "${dontObscureIPv6-}" ]] && alias obscureIPv6=':'
+# Sed fallback that preserves the original behavior.
+function _obscureIPv6_sed() {
+  sed -E 's%(m|[[:space:]]|[(])[23][0-9a-f]{3}:[0-9a-f]{1,4}:%\13fff:abc:%g'
+}
+
+# Main filter function.
+#
+# This reads from stdin and writes to stdout.
+# It is designed to be used in pipelines:
+#
+#   some_command | obscureIPv6
+#
+function obscureIPv6() {
+  # Suppress obscuring entirely if requested.
+  if [[ -n "${dontObscureIPv6-}" ]]; then
+    cat
+    return 0
+  fi
+
+  # Prefer the compiled executable if available.
+  if _has_obscureipv6_executable; then
+    command obscureIPv6 filter
+    return $?
+  fi
+
+  # Otherwise use the original sed-based implementation.
+  _obscureIPv6_sed
+}
 
 function tracepath() {
   /usr/sbin/tracepath "$@" | obscureIPv6
